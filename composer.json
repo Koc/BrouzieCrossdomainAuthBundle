@@ -1,0 +1,27 @@
+{
+    "name": "brouzie/brouzie-crossdomain-auth-bundle",
+    "description": "Crossdomain authentication for Symfony2",
+    "keywords": ["authentication", "crossdomain", "security", "symfony"],
+    "homepage": "https://github.com/Koc/BrouzieCrossdomainAuthBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Konstantin.Myakshin",
+            "email": "koc-dp@yandex.ru"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.8",
+        "symfony/framework-bundle": ">=2.1,<3.0",
+        "symfony/security-bundle": ">=2.1,<3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*@stable"
+    },
+    "autoload": {
+        "psr-0": {
+            "Brouzie\\Bundle\\CrossdomainAuthBundle": ""
+        }
+    },
+    "target-dir" : "Brouzie/Bundle/CrossdomainAuthBundle"
+}
