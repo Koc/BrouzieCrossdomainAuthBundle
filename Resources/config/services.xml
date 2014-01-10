@@ -8,13 +8,11 @@
     <parameters>
         <parameter key="brouzie_crossdomain_auth.example.class">Brouzie\Bundle\CrossdomainAuthBundle\Example</parameter>
     </parameters>
+    -->
 
     <services>
-        <service id="brouzie_crossdomain_auth.example" class="%brouzie_crossdomain_auth.example.class%">
-            <argument type="service" id="service_id" />
-            <argument>plain_value</argument>
-            <argument>%parameter_name%</argument>
+        <service id="brouzie.crossdomain_auth.simple_response_signer" class="Brouzie\Bundle\CrossdomainAuthBundle\ResponseSigner\SimpleResponseSigner">
         </service>
     </services>
-    -->
+
 </container>

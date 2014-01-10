@@ -1,0 +1,5 @@
+#TODO: load dynamically, add support of the https
+brouzie_crossdomain_auth_authentication_check_auth:
+    path: /check-auth
+    host: %brouzie.crossdomain_auth.authentication_server.host%
+    defaults: {_controller: BrouzieCrossdomainAuthBundle:Authentication:checkAuthentication }

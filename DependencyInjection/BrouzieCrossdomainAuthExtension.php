@@ -2,10 +2,11 @@
 
 namespace Brouzie\Bundle\CrossdomainAuthBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -24,5 +25,16 @@ class BrouzieCrossdomainAuthExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
+
+        if (!empty($config['secret_key_provider'])) {
+            $container->setDefinition('brouzie.crossdomain_auth.secret_key_provider', new DefinitionDecorator($config['secret_key_provider']));
+        }
+
+        //TODO: use getDefinition instead of decoration?
+        $container->setDefinition('brouzie.crossdomain_auth.response_signer', new DefinitionDecorator($config['response_signer']));
+
+        $container->setParameter('brouzie.crossdomain_auth.authentication_server.host', parse_url($config['authentication_server']['url'], PHP_URL_HOST));
+        $container->setParameter('brouzie.crossdomain_auth.authentication_server.client', $config['authentication_server']['client']);
+        $container->setParameter('brouzie.crossdomain_auth.authentication_server.secret_key', $config['authentication_server']['secret_key']);
     }
 }

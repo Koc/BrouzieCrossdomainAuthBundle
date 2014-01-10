@@ -20,9 +20,22 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('brouzie_crossdomain_auth');
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $rootNode
+            ->children()
+                ->arrayNode('authentication_server')
+                    ->children()
+                        ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('client')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('secret_key')->isRequired()->cannotBeEmpty()->end()
+                    ->end()
+                ->end()
+                ->scalarNode('secret_key_provider')->end()
+                ->scalarNode('response_signer')
+                    ->cannotBeEmpty()
+                    ->defaultValue('brouzie.crossdomain_auth.simple_response_signer')
+                ->end()
+            ->end()
+        ;
 
         return $treeBuilder;
     }
