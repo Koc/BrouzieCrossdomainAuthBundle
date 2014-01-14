@@ -19,7 +19,6 @@ class ClientController extends ContainerAware
 
         $url = $router->generate('brouzie_crossdomain_auth_server_check_auth', array(
                 'client' => $this->container->getParameter('brouzie.crossdomain_auth.authentication_server.client'),
-                'check_path' => $request->getUriForPath($this->container->getParameter('brouzie.crossdomain_auth.check_path')),
             ), true);
 
         return new Response(sprintf('<script src="%s"></script>', $url));

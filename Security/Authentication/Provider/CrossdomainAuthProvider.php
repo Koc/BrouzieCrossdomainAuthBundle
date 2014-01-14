@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Brouzie\Bundle\CrossdomainAuthBundle\ResponseSigner\ResponseSignerInterface;
 use Brouzie\Bundle\CrossdomainAuthBundle\Security\Authentication\Token\CrossdomainAuthToken;
 
-class CrossdomainAuthProvier implements AuthenticationProviderInterface
+class CrossdomainAuthProvider implements AuthenticationProviderInterface
 {
     /**
      * @var UserProviderInterface

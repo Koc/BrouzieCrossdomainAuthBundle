@@ -1,6 +1,3 @@
-brouzie_crossdomain_auth_login_check:
-    path: /crossdomain_authentication
-
 #TODO: load dynamically or add here support of the https
 brouzie_crossdomain_auth_server_check_auth:
     path: /check-auth

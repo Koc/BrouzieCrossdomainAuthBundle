@@ -6,17 +6,19 @@
 
     <services>
         <service id="brouzie.crossdomain_auth.security.authentication.provider"
-                 class="Brouzie\Bundle\CrossdomainAuthBundle\Security\Authentication\Provider\CrossdomainAuthProvier" public="false">
+                 class="Brouzie\Bundle\CrossdomainAuthBundle\Security\Authentication\Provider\CrossdomainAuthProvider"
+                 public="false">
             <argument /> <!-- User Provider -->
             <argument type="service" id="brouzie.crossdomain_auth.response_signer" />
             <argument type="service" id="brouzie.crossdomain_auth.secret_key_provider" />
         </service>
 
-        <service id="brouzie.crossdomain_auth.security.authentication.listener" class="Brouzie\Bundle\CrossdomainAuthBundle\Security\Firewall\CrossdomainAuthListener"
-                 parent="security.authentication.listener.abstract" public="false" abstract="true">
-            <call method="setClient">
-                <argument>%brouzie.crossdomain_auth.authentication_server.client%</argument>
-            </call>
+        <service id="brouzie.crossdomain_auth.security.authentication.listener"
+                 class="Brouzie\Bundle\CrossdomainAuthBundle\Security\Firewall\CrossdomainAuthListener" public="false"
+                 abstract="true">
+            <argument type="service" id="security.context"/>
+            <argument type="service" id="security.authentication.manager" />
+            <argument>%brouzie.crossdomain_auth.authentication_server.client%</argument>
         </service>
 
         <service id="brouzie.crossdomain_auth.simple_response_signer" class="Brouzie\Bundle\CrossdomainAuthBundle\ResponseSigner\SimpleResponseSigner" />

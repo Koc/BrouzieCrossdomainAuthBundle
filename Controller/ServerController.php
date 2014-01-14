@@ -18,9 +18,9 @@ class ServerController extends ContainerAware
         $content = '/* not authenticated */';
 
         $securityContext = $this->container->get('security.context');
+
         if ($securityContext->isGranted('ROLE_USER')) {
             $client = $request->query->get('client');
-            $checkPath = $request->query->get('check_path');
 
             $secretKeyProvider = $this->container->get('metal.security.crossdomain_auth.secret_key_provider');
             /* @var $secretKeyProvider SecretKeyProviderInterface */
@@ -33,18 +33,16 @@ class ServerController extends ContainerAware
             /* @var $user UserInterface */
             $signature = $responseSigner->signUser($user, $secretKey);
 
-            $authenticationToken = CrossdomainAuthToken::composeAuthenticationToken($user->getUsername(), $signature);
+            $username = $user->getUsername();
+            $authenticationToken = CrossdomainAuthToken::composeAuthenticationToken($username, $signature);
             $authenticationToken = urlencode($authenticationToken);
 
             $content = <<<JS
-var checkPath = '$checkPath';
-var separator = checkPath.indexOf('?') > -1 ? '&' : '?';
-document.location.href = checkPath + separator + '_authentication_token=$authenticationToken';
+/* authenticated as $username */
+var separator = document.location.href.indexOf('?') > -1 ? '&' : '?';
+document.location.href = document.location.href + separator + '_authentication_token=$authenticationToken';
 JS;
         }
-
-//        $sessionData = $request->getSession()->all();
-//        vd(unserialize($sessionData['_security_user_authentication']));
 
         return new Response($content, Response::HTTP_OK, array('Content-Type', 'text/javascript'));
     }

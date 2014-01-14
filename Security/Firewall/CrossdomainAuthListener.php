@@ -2,27 +2,34 @@
 
 namespace Brouzie\Bundle\CrossdomainAuthBundle\Security\Firewall;
 
-use Brouzie\Bundle\CrossdomainAuthBundle\Security\Authentication\Token\CrossdomainAuthToken;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
-class CrossdomainAuthListener extends AbstractAuthenticationListener
+use Brouzie\Bundle\CrossdomainAuthBundle\Security\Authentication\Token\CrossdomainAuthToken;
+
+class CrossdomainAuthListener implements ListenerInterface
 {
+    private $securityContext;
+    private $authenticationManager;
     private $client;
 
-    /**
-     * @param string $client
-     */
-    public function setClient($client)
+    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, $client)
     {
+        $this->securityContext = $securityContext;
+        $this->authenticationManager = $authenticationManager;
         $this->client = $client;
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function attemptAuthentication(Request $request)
+    public function handle(GetResponseEvent $event)
     {
+        $request = $event->getRequest();
         $authenticationToken = $request->query->get('_authentication_token');
 
         if (!$authenticationToken) {
@@ -33,6 +40,21 @@ class CrossdomainAuthListener extends AbstractAuthenticationListener
         $token->setAuthenticationToken($authenticationToken);
         $token->setClient($this->client);
 
-        return $this->authenticationManager->authenticate($token);
+        try {
+            $authToken = $this->authenticationManager->authenticate($token);
+
+            $this->securityContext->setToken($authToken);
+            //TODO: add logging
+            //TODO: dispatch SecurityEvents::INTERACTIVE_LOGIN event
+
+            $queryParams = $request->query->all();
+            unset($queryParams['_authentication_token']);
+            $suffix = count($queryParams) ? '?'.http_build_query($queryParams, null, '&') : '';
+            $targetUrl = $request->getUriForPath($request->getPathInfo().$suffix);
+
+            $event->setResponse(new RedirectResponse($targetUrl));
+        } catch (AuthenticationException $failed) {
+            $this->securityContext->setToken(null);
+        }
     }
 }
