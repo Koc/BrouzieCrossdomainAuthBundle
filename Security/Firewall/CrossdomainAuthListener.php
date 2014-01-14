@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
 use Brouzie\Bundle\CrossdomainAuthBundle\Security\Authentication\Token\CrossdomainAuthToken;
+use Brouzie\Bundle\CrossdomainAuthBundle\Security\Core\User\VersionableUserInterface;
 
 class CrossdomainAuthListener implements ListenerInterface
 {
@@ -29,12 +30,22 @@ class CrossdomainAuthListener implements ListenerInterface
      */
     public function handle(GetResponseEvent $event)
     {
+        $token = $this->securityContext->getToken();
+        if ($token instanceof CrossdomainAuthToken) {
+            $user = $token->getUser();
+            if ($user && $user instanceof VersionableUserInterface && $user->getUserVersion() != $token->getUserVersion()) {
+                // user logged out
+                $this->securityContext->setToken(null);
+            }
+        }
+
         $request = $event->getRequest();
         $authenticationToken = $request->query->get('_authentication_token');
 
         if (!$authenticationToken) {
             return null;
         }
+        //TODO: add logout handlers for updation user version
 
         $token = new CrossdomainAuthToken();
         $token->setAuthenticationToken($authenticationToken);

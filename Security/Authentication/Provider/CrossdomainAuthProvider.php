@@ -3,6 +3,7 @@
 namespace Brouzie\Bundle\CrossdomainAuthBundle\Security\Authentication\Provider;
 
 use Brouzie\Bundle\CrossdomainAuthBundle\SecretKeyProvider\SecretKeyProviderInterface;
+use Brouzie\Bundle\CrossdomainAuthBundle\Security\Core\User\VersionableUserInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -50,6 +51,9 @@ class CrossdomainAuthProvider implements AuthenticationProviderInterface
         if ($signature === $clientSignature) {
             $authenticatedToken = new CrossdomainAuthToken($user->getRoles());
             $authenticatedToken->setUser($user);
+            if ($user instanceof VersionableUserInterface) {
+                $authenticatedToken->setUserVersion($user->getUserVersion());
+            }
             $authenticatedToken->setAuthenticationToken($token->getAuthenticationToken());
             $authenticatedToken->setClient($token->getClient());
 

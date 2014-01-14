@@ -10,6 +10,8 @@ class CrossdomainAuthToken extends AbstractToken
 
     private $client;
 
+    private $userVersion;
+
     public function __construct(array $roles = array())
     {
         parent::__construct($roles);
@@ -51,6 +53,22 @@ class CrossdomainAuthToken extends AbstractToken
     }
 
     /**
+     * @param integer $userVersion
+     */
+    public function setUserVersion($userVersion)
+    {
+        $this->userVersion = $userVersion;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getUserVersion()
+    {
+        return $this->userVersion;
+    }
+
+    /**
      * @param string $username
      * @param string $signature
      *
@@ -76,5 +94,16 @@ class CrossdomainAuthToken extends AbstractToken
     public function getCredentials()
     {
         return '';
+    }
+
+    public function serialize()
+    {
+        return serialize(array($this->userVersion, parent::serialize(),));
+    }
+
+    public function unserialize($serialized)
+    {
+        list($this->userVersion, $parentStr) = unserialize($serialized);
+        parent::unserialize($parentStr);
     }
 }
