@@ -1,8 +1,8 @@
 <?php
 
-namespace Brouzie\Bundle\CrossdomainAuthBundle\Service;
+namespace Brouzie\Bundle\CrossdomainAuthBundle\SecretKeyProvider;
 
-class ArraySecretKeyProvider implements SecretKeyProvier
+class ArraySecretKeyProvider implements SecretKeyProviderInterface
 {
     protected $keys;
 

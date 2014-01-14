@@ -3,13 +3,15 @@
 namespace Brouzie\Bundle\CrossdomainAuthBundle\Controller;
 
 use Brouzie\Bundle\CrossdomainAuthBundle\ResponseSigner\ResponseSignerInterface;
-use Brouzie\Bundle\CrossdomainAuthBundle\Service\SecretKeyProvier;
+use Brouzie\Bundle\CrossdomainAuthBundle\SecretKeyProvider\SecretKeyProviderInterface;
 
+use Brouzie\Bundle\CrossdomainAuthBundle\Security\Authentication\Token\CrossdomainAuthToken;
 use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-class AuthenticationController extends ContainerAware
+class ServerController extends ContainerAware
 {
     public function checkAuthenticationAction(Request $request)
     {
@@ -18,22 +20,26 @@ class AuthenticationController extends ContainerAware
         $securityContext = $this->container->get('security.context');
         if ($securityContext->isGranted('ROLE_USER')) {
             $client = $request->query->get('client');
+            $checkPath = $request->query->get('check_path');
 
             $secretKeyProvider = $this->container->get('metal.security.crossdomain_auth.secret_key_provider');
-            /* @var $secretKeyProvider SecretKeyProvier */
+            /* @var $secretKeyProvider SecretKeyProviderInterface */
 
             $responseSigner = $this->container->get('brouzie.crossdomain_auth.response_signer');
             /* @var $responseSigner ResponseSignerInterface */
 
             $secretKey = $secretKeyProvider->getSecretKeyForClient($client);
             $user = $securityContext->getToken()->getUser();
+            /* @var $user UserInterface */
             $signature = $responseSigner->signUser($user, $secretKey);
 
-            $authenticationToken = sprintf('%s*%s', $user->getUsername(), $signature);
+            $authenticationToken = CrossdomainAuthToken::composeAuthenticationToken($user->getUsername(), $signature);
+            $authenticationToken = urlencode($authenticationToken);
 
             $content = <<<JS
-var separator = document.location.href.indexOf('?') > -1 ? '&' : '?';
-document.location.href = document.location.href + separator + '_authentication_token=$authenticationToken';
+var checkPath = '$checkPath';
+var separator = checkPath.indexOf('?') > -1 ? '&' : '?';
+document.location.href = checkPath + separator + '_authentication_token=$authenticationToken';
 JS;
         }
 
