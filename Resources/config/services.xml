@@ -19,6 +19,8 @@
             <argument type="service" id="security.context"/>
             <argument type="service" id="security.authentication.manager" />
             <argument>%brouzie.crossdomain_auth.authentication_server.client%</argument>
+            <argument type="service" id="logger" on-invalid="null" />
+            <argument type="service" id="event_dispatcher" on-invalid="null"/>
         </service>
 
         <service id="brouzie.crossdomain_auth.security.logout.handler.user_versioner"

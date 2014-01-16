@@ -2,12 +2,17 @@
 
 namespace Brouzie\Bundle\CrossdomainAuthBundle\Security\Firewall;
 
+use Psr\Log\LoggerInterface;
+
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
+use Symfony\Component\Security\Http\SecurityEvents;
 
 use Brouzie\Bundle\CrossdomainAuthBundle\Security\Authentication\Token\CrossdomainAuthToken;
 use Brouzie\Bundle\CrossdomainAuthBundle\Security\Core\User\VersionableUserInterface;
@@ -17,12 +22,16 @@ class CrossdomainAuthListener implements ListenerInterface
     private $securityContext;
     private $authenticationManager;
     private $client;
+    private $logger;
+    private $dispatcher;
 
-    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, $client)
+    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, $client, LoggerInterface $logger = null, EventDispatcherInterface $dispatcher = null)
     {
         $this->securityContext = $securityContext;
         $this->authenticationManager = $authenticationManager;
         $this->client = $client;
+        $this->logger = $logger;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -36,6 +45,11 @@ class CrossdomainAuthListener implements ListenerInterface
             if ($user && $user instanceof VersionableUserInterface && $user->getUserVersion() != $token->getUserVersion()) {
                 // user logged out
                 $this->securityContext->setToken(null);
+
+                if (null !== $this->logger) {
+                    $this->logger->debug('SecurityContext erased because crossdomain-authentication token version'
+                        .' does not corresponding to the user version.');
+                }
             }
         }
 
@@ -52,10 +66,16 @@ class CrossdomainAuthListener implements ListenerInterface
 
         try {
             $authToken = $this->authenticationManager->authenticate($token);
-
             $this->securityContext->setToken($authToken);
-            //TODO: add logging
-            //TODO: dispatch SecurityEvents::INTERACTIVE_LOGIN event
+
+            if (null !== $this->dispatcher) {
+                $loginEvent = new InteractiveLoginEvent($request, $token);
+                $this->dispatcher->dispatch(SecurityEvents::INTERACTIVE_LOGIN, $loginEvent);
+            }
+
+            if (null !== $this->logger) {
+                $this->logger->debug('SecurityContext populated with crossdomain-authentication token.');
+            }
 
             $queryParams = $request->query->all();
             unset($queryParams['_authentication_token']);
@@ -65,6 +85,14 @@ class CrossdomainAuthListener implements ListenerInterface
             $event->setResponse(new RedirectResponse($targetUrl));
         } catch (AuthenticationException $failed) {
             $this->securityContext->setToken(null);
+
+            if (null !== $this->logger) {
+                $this->logger->warning(
+                    'SecurityContext not populated with crossdomain-authentication token as the'
+                    .' AuthenticationManager rejected the AuthenticationToken returned'
+                    .' by the RememberMeServices: '.$failed->getMessage()
+                );
+            }
         }
     }
 }
