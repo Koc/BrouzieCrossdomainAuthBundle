@@ -21,6 +21,12 @@
             <argument>%brouzie.crossdomain_auth.authentication_server.client%</argument>
         </service>
 
+        <service id="brouzie.crossdomain_auth.security.logout.handler.user_versioner"
+                 class="Brouzie\Bundle\CrossdomainAuthBundle\Security\Http\Logout\UserVersionerLogoutListener"
+                 public="false">
+            <argument /> <!-- User Versioner -->
+        </service>
+
         <service id="brouzie.crossdomain_auth.simple_response_signer" class="Brouzie\Bundle\CrossdomainAuthBundle\ResponseSigner\SimpleResponseSigner" />
     </services>
 

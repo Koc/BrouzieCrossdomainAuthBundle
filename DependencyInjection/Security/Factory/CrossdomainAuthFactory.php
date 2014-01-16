@@ -24,6 +24,15 @@ class CrossdomainAuthFactory implements SecurityFactoryInterface
         $listenerId = 'security.authentication.listener.brouzie_crossdomain_auth.'.$id;
         $container->setDefinition($listenerId, new DefinitionDecorator('brouzie.crossdomain_auth.security.authentication.listener'));
 
+        if (isset($config['user_versioner'])) {
+            $userVersionerListenerId = 'security.logout.handler.user_versioner';
+            $userVersionerListener = $container->setDefinition($userVersionerListenerId, new DefinitionDecorator('brouzie.crossdomain_auth.security.logout.handler.user_versioner'));
+            $userVersionerListener->replaceArgument(0, new Reference($config['user_versioner']));
+
+            $logoutListener = $container->getDefinition('security.logout_listener.'.$id);
+            $logoutListener->addMethodCall('addHandler', array(new Reference($userVersionerListenerId)));
+        }
+
         return array($providerId, $listenerId, $defaultEntryPoint);
     }
 
@@ -48,6 +57,10 @@ class CrossdomainAuthFactory implements SecurityFactoryInterface
      */
     public function addConfiguration(NodeDefinition $node)
     {
-        //
+        $node
+            ->children()
+                ->scalarNode('user_versioner')->end()
+            ->end()
+        ;
     }
 }
