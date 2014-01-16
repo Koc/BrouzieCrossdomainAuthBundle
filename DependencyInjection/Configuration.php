@@ -27,6 +27,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
                         ->scalarNode('client')->isRequired()->cannotBeEmpty()->end()
                         ->scalarNode('secret_key')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('logout_path')->defaultValue('/logout')->cannotBeEmpty()->end()
                     ->end()
                 ->end()
                 ->scalarNode('secret_key_provider')->end()

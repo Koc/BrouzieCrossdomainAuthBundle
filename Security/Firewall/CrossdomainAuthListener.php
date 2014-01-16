@@ -45,7 +45,6 @@ class CrossdomainAuthListener implements ListenerInterface
         if (!$authenticationToken) {
             return null;
         }
-        //TODO: add logout handlers for updation user version
 
         $token = new CrossdomainAuthToken();
         $token->setAuthenticationToken($authenticationToken);

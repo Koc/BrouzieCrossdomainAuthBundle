@@ -4,3 +4,7 @@ brouzie_crossdomain_auth_server_check_auth:
     schemes:  [%brouzie.crossdomain_auth.authentication_server.scheme%]
     defaults: {_controller: BrouzieCrossdomainAuthBundle:Server:checkAuthentication }
 
+brouzie_crossdomain_auth_server_logout:
+    path: %brouzie.crossdomain_auth.authentication_server.logout_path%
+    host: %brouzie.crossdomain_auth.authentication_server.host%
+    schemes:  [%brouzie.crossdomain_auth.authentication_server.scheme%]
