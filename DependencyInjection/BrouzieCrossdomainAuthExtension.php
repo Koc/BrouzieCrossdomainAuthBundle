@@ -34,6 +34,7 @@ class BrouzieCrossdomainAuthExtension extends Extension
         $container->setDefinition('brouzie.crossdomain_auth.response_signer', new DefinitionDecorator($config['response_signer']));
 
         $container->setParameter('brouzie.crossdomain_auth.authentication_server.host', parse_url($config['authentication_server']['url'], PHP_URL_HOST));
+        $container->setParameter('brouzie.crossdomain_auth.authentication_server.scheme', parse_url($config['authentication_server']['url'], PHP_URL_SCHEME));
         $container->setParameter('brouzie.crossdomain_auth.authentication_server.client', $config['authentication_server']['client']);
         $container->setParameter('brouzie.crossdomain_auth.authentication_server.secret_key', $config['authentication_server']['secret_key']);
     }
