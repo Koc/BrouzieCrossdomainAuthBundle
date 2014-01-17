@@ -69,7 +69,7 @@ class CrossdomainAuthFactory implements SecurityFactoryInterface
                 ->scalarNode('user_versioner')->end()
                 ->arrayNode('logout')
                     ->children()
-                        ->scalarNode('target_path_parameter')->defaultValue('_redirect_to')->end()
+                        ->scalarNode('target_path_parameter')->defaultValue('_target_path')->end()
                         ->booleanNode('use_referer')->defaultValue(false)->end()
                     ->end()
                 ->end()
