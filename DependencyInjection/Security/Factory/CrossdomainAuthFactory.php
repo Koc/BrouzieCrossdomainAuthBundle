@@ -24,12 +24,19 @@ class CrossdomainAuthFactory implements SecurityFactoryInterface
         $listenerId = 'security.authentication.listener.brouzie_crossdomain_auth.'.$id;
         $container->setDefinition($listenerId, new DefinitionDecorator('brouzie.crossdomain_auth.security.authentication.listener'));
 
+        $logoutListener = $container->getDefinition('security.logout_listener.'.$id);
+
+        $userVersionerListenerId = 'security.logout.handler.target_path_fixer';
+        $userVersionerListener = $container->setDefinition($userVersionerListenerId, new DefinitionDecorator('brouzie.crossdomain_auth.security.logout.handler.target_path_fixer'));
+        $userVersionerListener->replaceArgument(1, $config['logout']);
+
+        $logoutListener->addMethodCall('addHandler', array(new Reference($userVersionerListenerId)));
+
         if (isset($config['user_versioner'])) {
             $userVersionerListenerId = 'security.logout.handler.user_versioner';
             $userVersionerListener = $container->setDefinition($userVersionerListenerId, new DefinitionDecorator('brouzie.crossdomain_auth.security.logout.handler.user_versioner'));
             $userVersionerListener->replaceArgument(0, new Reference($config['user_versioner']));
 
-            $logoutListener = $container->getDefinition('security.logout_listener.'.$id);
             $logoutListener->addMethodCall('addHandler', array(new Reference($userVersionerListenerId)));
         }
 
@@ -60,6 +67,12 @@ class CrossdomainAuthFactory implements SecurityFactoryInterface
         $node
             ->children()
                 ->scalarNode('user_versioner')->end()
+                ->arrayNode('logout')
+                    ->children()
+                        ->scalarNode('target_path_parameter')->defaultValue('_redirect_to')->end()
+                        ->booleanNode('use_referer')->defaultValue(false)->end()
+                    ->end()
+                ->end()
             ->end()
         ;
     }

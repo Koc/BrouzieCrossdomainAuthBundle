@@ -29,6 +29,13 @@
             <argument /> <!-- User Versioner -->
         </service>
 
+        <service id="brouzie.crossdomain_auth.security.logout.handler.target_path_fixer"
+                 class="Brouzie\Bundle\CrossdomainAuthBundle\Security\Http\Logout\TargetPathListener"
+                 public="false">
+            <argument type="service" id="security.http_utils" />
+            <argument type="collection" /> <!-- Options -->
+        </service>
+
         <service id="brouzie.crossdomain_auth.simple_response_signer" class="Brouzie\Bundle\CrossdomainAuthBundle\ResponseSigner\SimpleResponseSigner" />
     </services>
 
