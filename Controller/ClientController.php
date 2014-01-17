@@ -17,6 +17,11 @@ class ClientController extends ContainerAware
             return new Response('');
         }
 
+        // add check to the base path in future
+        if ($request->getHost() === $this->container->getParameter('brouzie.crossdomain_auth.authentication_server.host')) {
+            return new Response('');
+        }
+
         $url = $router->generate('brouzie_crossdomain_auth_server_check_auth', array(
                 'client' => $this->container->getParameter('brouzie.crossdomain_auth.authentication_server.client'),
             ), true);
