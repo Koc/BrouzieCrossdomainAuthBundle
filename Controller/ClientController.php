@@ -26,6 +26,6 @@ class ClientController extends ContainerAware
                 'client' => $this->container->getParameter('brouzie.crossdomain_auth.authentication_server.client'),
             ), true);
 
-        return new Response(sprintf('<script src="%s"></script>', $url));
+        return new Response(sprintf('<script type="text/javascript" src="%s"></script>', $url));
     }
 }
