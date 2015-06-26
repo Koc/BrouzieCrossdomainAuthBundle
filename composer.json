@@ -6,12 +6,12 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Konstantin.Myakshin",
+            "name": "Konstantin Myakshin",
             "email": "koc-dp@yandex.ru"
         }
     ],
     "require": {
-        "php": ">=5.3.8",
+        "php": ">=5.3.9",
         "symfony/framework-bundle": ">=2.2,<3.0",
         "symfony/security-bundle": ">=2.2,<3.0"
     },
